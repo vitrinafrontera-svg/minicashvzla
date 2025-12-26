@@ -3,8 +3,8 @@ name: Bot Tasa BCV
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 13 * * *' # Corre a las 9:30 AM Vzla
-    - cron: '30 20 * * *' # Corre a las 4:30 PM Vzla
+    - cron: '30 13 * * *' # Corre a las 10:30 AM Vzla
+    - cron: '30 20 * * *' # Corre a las 5:00 PM Vzla
 
 jobs:
   build:
