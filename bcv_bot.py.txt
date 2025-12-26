@@ -7,8 +7,8 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # --- CONFIGURACIÓN ---
-TELEGRAM_TOKEN = 'TU_TOKEN_AQUI'
-CHAT_ID = 'TU_ID_DEL_CANAL_AQUI' # Ej: -10012345678
+TELEGRAM_TOKEN = '8349779265:AAF5Wx-8hCdk0jzm0uXQd8n2jXHrhZgGI1U'
+CHAT_ID = '1003356621812' # Ej: -10012345678
 BCV_URL = 'https://www.bcv.org.ve/'
 
 def obtener_tasas():
@@ -59,4 +59,5 @@ if dolar and euro:
     enviar_telegram(mensaje)
     print("Mensaje enviado con éxito.")
 else:
+
     print("No se pudieron obtener las tasas hoy.")
