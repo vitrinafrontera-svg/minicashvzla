@@ -1,27 +1,27 @@
 name: Bot Tasa BCV
 
 on:
-  workflow_dispatch: # Esto permite que lo actives tú con un botón
+  workflow_dispatch:
   schedule:
-    - cron: '0 13 * * *' # Esto corre a las 9:00 AM hora Vzla
-    - cron: '0 21 * * *' # Esto corre a las 5:00 PM hora Vzla
+    - cron: '30 13 * * *' # Corre a las 9:30 AM Vzla
+    - cron: '30 20 * * *' # Corre a las 4:30 PM Vzla
 
 jobs:
-  ejecutar-bot:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Copiar el código del repo
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Instalar Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Instalar librerias necesarias
+      - name: Install Dependencies
         run: pip install requests beautifulsoup4
 
-      - name: Correr el script de Python
+      - name: Run Script
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
