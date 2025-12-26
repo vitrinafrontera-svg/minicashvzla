@@ -2,32 +2,34 @@ import requests
 from bs4 import BeautifulSoup
 import datetime
 import urllib3
+import os
 
-# Desactivar advertencias de certificado SSL (común en sitios gubernamentales)
+# Desactivar advertencias de seguridad para la web del BCV
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# --- CONFIGURACIÓN ---
-TELEGRAM_TOKEN = '8349779265:AAF5Wx-8hCdk0jzm0uXQd8n2jXHrhZgGI1U'
-CHAT_ID = '1003356621812' # Ej: -10012345678
+# --- CONFIGURACIÓN (GitHub leerá esto de tus 'Secrets') ---
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+CHAT_ID = os.getenv('CHAT_ID')
 BCV_URL = 'https://www.bcv.org.ve/'
 
 def obtener_tasas():
     try:
-        # El sitio del BCV a veces tiene problemas de certificados, por eso verify=False
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(BCV_URL, headers=headers, verify=False, timeout=20)
+        # Cabecera para que el BCV crea que somos un navegador normal
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        response = requests.get(BCV_URL, headers=headers, verify=False, timeout=30)
         
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             
-            # NOTA: El BCV cambia su estructura a veces. 
-            # Actualmente las tasas están en divs con id "dolar" y "euro"
+            # Extraer las tasas buscando por los IDs oficiales del BCV
             tasa_dolar = soup.find('div', id='dolar').find('strong').text.strip()
             tasa_euro = soup.find('div', id='euro').find('strong').text.strip()
             
             return tasa_dolar, tasa_euro
         else:
-            print("Error al cargar la página del BCV")
+            print(f"Error BCV: Código de estado {response.status_code}")
             return None, None
             
     except Exception as e:
@@ -41,23 +43,24 @@ def enviar_telegram(mensaje):
         "text": mensaje,
         "parse_mode": "Markdown"
     }
-    requests.post(url, data=data)
+    response = requests.post(url, data=data)
+    # Esto imprimirá en la consola de GitHub si Telegram aceptó el mensaje
+    print(f"Respuesta de Telegram: {response.text}")
 
-# --- EJECUCIÓN PRINCIPAL ---
+# --- EJECUCIÓN ---
 dolar, euro = obtener_tasas()
 
 if dolar and euro:
     fecha = datetime.datetime.now().strftime("%d/%m/%Y")
     
     mensaje = (
-        f"📢 **Tasa Oficial BCV - {fecha}**\n\n"
+        f"📢 **Tasa Oficial BCV**\n"
+        f"📅 **Fecha:** {fecha}\n\n"
         f"🇺🇸 **Dólar:** {dolar} Bs.\n"
         f"🇪🇺 **Euro:** {euro} Bs.\n\n"
-        f"🔗 Fuente: Banco Central de Venezuela"
+        f"🔗 _Fuente: Banco Central de Venezuela_"
     )
     
     enviar_telegram(mensaje)
-    print("Mensaje enviado con éxito.")
 else:
-
-    print("No se pudieron obtener las tasas hoy.")
+    print("No se pudo obtener la información del BCV.")
