@@ -1,0 +1,29 @@
+#name: Actualizar Tasa BCV
+
+on:
+  schedule:
+    # Esto corre todos los días a las 21:00 UTC (aprox 5:00 PM Venezuela)
+    - cron: '0 21 * * *'
+  workflow_dispatch: # Esto permite que lo actives manualmente para probar
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Instalar librerias
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Ejecutar Script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python bcv_bot.py
